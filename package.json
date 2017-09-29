@@ -7,12 +7,15 @@
     "test": "test"
   },
   "scripts": {
-    
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "lite-server"
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+    //"start": "lite-server"
   },
   "author": "Gilang",
   "license": "ISC",
+  "devDependencies": {
+    "lite-server": "^2.3.0",
+  },
   "dependencies": {
     "lite-server": "^2.3.0",
     "bootbox" : "^4.4.0"
