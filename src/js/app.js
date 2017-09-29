@@ -3,20 +3,23 @@ App = {
   contracts: {},
 
   init: function() {
+
     // Load pets.
-    $.getJSON('../pets.json', function(data) {
-      var petsRow = $('#petsRow');
-      var petTemplate = $('#petTemplate');
+    $.getJSON('../invoices.json', function(data) {
+      var invoiceRow = $('#invoiceRow');
+      var invoiceTemplate = $('#invoiceTemplate');
 
       for (i = 0; i < data.length; i ++) {
-        petTemplate.find('.panel-title').text(data[i].name);
-        petTemplate.find('img').attr('src', data[i].picture);
-        petTemplate.find('.pet-breed').text(data[i].breed);
-        petTemplate.find('.pet-age').text(data[i].age);
-        petTemplate.find('.pet-location').text(data[i].location);
-        petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
 
-        petsRow.append(petTemplate.html());
+        invoiceTemplate.find('.invoice-id').text(data[i].id);
+        invoiceTemplate.find('.invoice-supplier').text(data[i].supplier);
+        invoiceTemplate.find('.invoice-buyer').text(data[i].currentBuyer);
+        invoiceTemplate.find('.invoice-value').text(data[i].totalValue);
+        invoiceTemplate.find('.invoice-duedate').text(data[i].dueDate);
+        invoiceTemplate.find('.invoice-riskrating').text(data[i].riskRating);
+        invoiceTemplate.find('.btn-applyrating').attr('data-id', data[i].id);
+
+        invoiceRow.append(invoiceTemplate.html());
       }
     });
 
@@ -44,7 +47,7 @@ App = {
 
       App.contracts.SmartInvoice.setProvider(App.web3Provider);
 
-      return App.markAdopted();
+      return App.fillInvoiceData();
     })
 
     // $.getJSON('Adoption.json', function(data) {
@@ -59,14 +62,14 @@ App = {
     //   return App.markAdopted();
     // });
 
-    alert("oi1");
     return App.bindEvents();
   },
 
   bindEvents: function() {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
     $(document).on('click', '.btn-addInvoice', App.addInvoice);
-    alert("oi2");
+    $(document).on('click', '.btn-sell', App.sellInvoice);
+    $(document).on('click', '.btn-applyrating', App.applyrating);
   },
 
   addInvoice: function() {
@@ -76,55 +79,91 @@ App = {
     alert(supplierAddress);
   },
 
-  handleAdopt: function() {
+  sellInvoice: function() {
     event.preventDefault();
 
-    var petId = parseInt($(event.target).data('id'));
-    var adoptionInstance;
+    var invoiceId = parseInt($(event.target).data('id'));
+    var invoiceInstance;
 
-    web3.eth.getAccounts(function(error, accounts) {
-      if (error) {
-        console.log(error);
-      }
+    bootbox.prompt("Please input the new address", function(result){
 
-      var account = accounts[0];
+      var newBuyer = result;
 
-      App.contracts.Adoption.deployed().then(function(instance) {
-        adoptionInstance = instance;
+      web3.eth.getAccounts(function(error,accounts){
+        if (error) {
+          console.log(error);
+        }
 
-        return adoptionInstance.adopt(petId, {from: account});
-      }).then(function(result) {
-        return App.markAdopted();
-      }).catch(function(err) {
+        var account = accounts[0];
+
+        App.contracts.SmartInvoice.deployed().then(function(instance) {
+          invoiceInstance = instance;
+
+          return invoiceInstance.sellInvoice(invoiceId, newBuyer, {from: account});
+
+        }).then(function(result) {
+          console.log(result);
+          return App.fillInvoiceData();
+        }).catch(function(err) {
         console.log(err.message);
+        });
       });
     });
   },
 
-  markAdopted: function(adopters, account) {
-    var adoptionInstance;
+  applyrating: function() {
+    event.preventDefault();
+
+    var invoiceId = parseInt($(event.target).data('id'));
+    var invoiceInstance;
+
+    bootbox.prompt("Please input the new rating", function(result){
+
+      var newRating = result;
+
+      web3.eth.getAccounts(function(error,accounts){
+        if (error) {
+          console.log(error);
+        }
+
+        var account = accounts[0];
+
+        App.contracts.SmartInvoice.deployed().then(function(instance) {
+          invoiceInstance = instance;
+
+          return invoiceInstance.applyRiskRating(invoiceId,newRating);
+
+        }).then(function(result) {
+          console.log(result);
+          return App.fillInvoiceData();
+        }).catch(function(err) {
+          console.log(err.message);
+        });
+      });
+    });
+  },
+
+
+  fillInvoiceData: function(suppliers, account) {
+    var smartInvoiceInstance;
 
     App.contracts.SmartInvoice.deployed().then(function(instance) {
       smartInvoiceInstance = instance;
 
-      
-    });
+      return smartInvoiceInstance.getInvoiceSuppliers.call();
+    }).then(function(suppliers) {
+        var invoiceRow = $('#invoiceRow');
+        var invoiceTemplate = $('#invoiceTemplate');
 
-    App.contracts.Adoption.deployed().then(function(instance) {
-      adoptionInstance = instance;
-
-      return adoptionInstance.getAdopters.call();
-    }).then(function(adopters) {
-      for (i = 0; i < adopters.length; i++) {
-        if (adopters[i] !== '0x0000000000000000000000000000000000000000') {
-          $('.panel-pet').eq(i).find('button').text('Pending...').attr('disabled', true);
-        }
+      for (i = 0; i < suppliers.length; i++) {
+        invoiceTemplate.find('.invoice-supplier').text(suppliers[i]);
+        invoiceRow.append(invoiceTemplate.html());
       }
     }).catch(function(err) {
       console.log(err.message);
     });
-  }
 
+  }
 };
 
 $(function() {

@@ -6,6 +6,7 @@ contract SmartInvoice is Ownable {
 
     Invoice[] invoiceList;
     uint invoiceCount;
+    address[] invoiceSuppliers;
     address[] _listOfBuyers;
     uint[] _dateOfBuyers;
 
@@ -13,16 +14,47 @@ contract SmartInvoice is Ownable {
 
     function SmartInvoice() {
 
-        _listOfBuyers.push(0x0);
-        _dateOfBuyers.push(now);
-
-        //Invoice memory _invoice = Invoice(0x0,_listOfBuyers,_dateOfBuyers);
-        Invoice memory _invoice = Invoice(0x0,_listOfBuyers,_dateOfBuyers,0x0,0,0,0,0,0,true,0,State.Invoicing);
-
-        invoiceList.push(_invoice);
     }
 
-    function getInvoiceList() public constant returns (uint) {
+    function initializeDummy() onlyOwner {
+        Invoice memory _invoice0;
+
+        _invoice0.supplier = 0x826ac204372F51152EdfF31fA46E4cC5A31ECE5e;
+        _invoice0.currentBuyer = 0xc72B6404e8417b65E8c3cbb51e55aB719C6A37CC;
+        _invoice0.totalValue = 1500000;
+        _invoice0.currentRiskRating = 5;
+        _invoice0.dueDate = 0;
+
+        invoiceList.push(_invoice0);
+
+        invoiceSuppliers.push(0x826ac204372F51152EdfF31fA46E4cC5A31ECE5e);
+
+        Invoice memory _invoice1;
+
+        _invoice1.supplier = 0x18D54cca8608d90661244AF0FEb0A3D3Ad367aCD;
+        _invoice1.currentBuyer = 0xf38157013B8E9AD41eE8092E6eA5D24fc38d928b;
+        _invoice1.totalValue = 3000000;
+        _invoice1.currentRiskRating = 2;
+        _invoice1.dueDate = 0;
+
+        invoiceList.push(_invoice1);
+
+        invoiceSuppliers.push(0x18D54cca8608d90661244AF0FEb0A3D3Ad367aCD);
+
+        Invoice memory _invoice2;
+
+        _invoice2.supplier = 0x1605906e66a25EEc5ef206a1C8e2f99F24E6E253;
+        _invoice2.currentBuyer = 0x18D54cca8608d90661244AF0FEb0A3D3Ad367aCD;
+        _invoice2.totalValue = 2000000;
+        _invoice2.currentRiskRating = 9;
+        _invoice2.dueDate = 0;
+
+        invoiceList.push(_invoice2);
+
+        invoiceSuppliers.push(0x1605906e66a25EEc5ef206a1C8e2f99F24E6E253);
+    }
+
+    function getInvoiceLength() public constant returns (uint) {
         return invoiceList.length;
     }
 
@@ -44,7 +76,6 @@ contract SmartInvoice is Ownable {
     }
 
     function addInvoice(
-        address _supplier,
         address _currentBuyer,
         uint _totalValue,
         uint _issueDate,
@@ -55,7 +86,7 @@ contract SmartInvoice is Ownable {
         uint _invalidDate) {
         
         Invoice _inn;
-        _inn.supplier = _supplier;
+        _inn.supplier = msg.sender;
         _inn.listOfBuyers.push(_currentBuyer);
         _inn.dateOfBuyers.push(now);
         _inn.currentBuyer = _currentBuyer;
@@ -70,10 +101,13 @@ contract SmartInvoice is Ownable {
 
         invoiceList.push(_inn);
         invoiceCount = invoiceCount + 1;
-        AddedInvoice(msg.sender, invoiceCount, now,_supplier,_currentBuyer);
+        //invoiceSuppliers[invoiceCount - 1] = _inn.supplier;
+        invoiceSuppliers.push(msg.sender);
+
+        AddedInvoice(msg.sender, invoiceCount, now,_inn.supplier,_currentBuyer);
     }
 
-    function applyRiskRating(uint invoiceId, uint rating) {
+    function applyRiskRating(uint invoiceId, uint rating) onlyOwner {
         require(invoiceId != 0);
         Invoice memory _invoice = invoiceList[invoiceId];
         require (_invoice.supplier != 0x0);
@@ -87,20 +121,31 @@ contract SmartInvoice is Ownable {
         require(newBuyer != 0x0);
         Invoice memory _invoice = invoiceList[invoiceId];
         require (_invoice.supplier != 0x0);
+        require (_invoice.currentBuyer == msg.sender);
 
-        invoiceList[invoiceId].listOfBuyers.push(newBuyer);
+        //invoiceList[invoiceId].listOfBuyers.push(newBuyer);
         invoiceList[invoiceId].currentBuyer = newBuyer;
-        invoiceList[invoiceId].dateOfBuyers.push(now);
+        //invoiceList[invoiceId].dateOfBuyers.push(now);
     }
 
     function invalidateInvoice(uint invoiceId) {
         require(invoiceId != 0);
         Invoice memory _invoice = invoiceList[invoiceId];
         require (_invoice.supplier != 0x0);
+        require (_invoice.supplier == msg.sender);
 
         invoiceList[invoiceId].isValid = false;
         invoiceList[invoiceId].invalidDate = now;
         invoiceList[invoiceId].invoiceState = State.Invalidated;
+    }
+
+    function finishInvoice(uint invoiceId) {
+        require(invoiceId != 0);
+        Invoice memory _invoice = invoiceList[invoiceId];
+        require (_invoice.supplier != 0x0);
+        require (_invoice.supplier == msg.sender);
+
+        invoiceList[invoiceId].invoiceState = State.Finished;
     }
 
     function clear() {
@@ -109,7 +154,6 @@ contract SmartInvoice is Ownable {
 
     enum State {
         Invoicing,
-        Payable,
         Invalidated,
         Finished
     }
@@ -128,7 +172,4 @@ contract SmartInvoice is Ownable {
         uint invalidDate;
         State invoiceState;
     }
-
-    //State: (1) Invoicing, (2) Payable, (3) Invalidated, (4) Finished
-
 }

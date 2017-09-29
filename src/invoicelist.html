@@ -27,8 +27,8 @@
         </div>
       </div>
 
-      <div id="petsRow" class="row">
-        <!-- PETS LOAD HERE -->
+      <div id="invoiceRow" class="row">
+        <!-- INVOICE LOAD HERE -->
       </div>
 
       <div class="row">
@@ -36,19 +36,20 @@
       </div>
     </div>
 
-    <div id="petTemplate" style="display: none;">
-      <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="panel panel-default panel-pet">
+    <div id="invoiceTemplate" style="display: none;">
+      <div class="col-sm-12 col-md-12 col-lg-12">
+        <div class="panel panel-default panel-invoice">
           <div class="panel-heading">
-            <h3 class="panel-title">Scrappy</h3>
+            <h3 class="panel-title"><strong>Invoice Id</strong>: <span class="invoice-id"></span></h3>
           </div>
           <div class="panel-body">
-            <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
-            <br/><br/>
-            <strong>Breed</strong>: <span class="pet-breed">Golden Retriever</span><br/>
-            <strong>Age</strong>: <span class="pet-age">3</span><br/>
-            <strong>Location</strong>: <span class="pet-location">Warren, MI</span><br/><br/>
-            <button class="btn btn-default btn-adopt" type="button" data-id="0">Adopt</button>
+            <strong>Supplier</strong>: <span class="invoice-supplier">0x185D12345</span><br/>
+            <strong>Current Buyer</strong>: <span class="invoice-buyer">0x185D12345</span><br/>
+            <strong>Value (USD)</strong>: <span class="invoice-value">2000000</span><br/>
+            <strong>Due Date</strong>: <span class="invoice-duedate">12/31/2017</span><br/>
+            <strong>Risk Rating</strong>: <span class="invoice-riskrating">10</span><br/>
+            <button class="btn btn-default btn-sell" type="button" data-id="0">Sell</button>
+            <button class="btn btn-default btn-applyrating" type="button" data-id="0">Apply New Rating</button>
           </div>
         </div>
       </div>
@@ -60,6 +61,7 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/web3.min.js"></script>
     <script src="js/truffle-contract.js"></script>
+    <script src="js/bootbox.min.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>
