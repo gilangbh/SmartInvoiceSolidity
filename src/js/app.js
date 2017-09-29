@@ -135,7 +135,7 @@ App = {
 
         }).then(function(result) {
           console.log(result);
-          return App.fillInvoiceData();
+          //  return App.fillInvoiceData();
         }).catch(function(err) {
           console.log(err.message);
         });
@@ -143,25 +143,24 @@ App = {
     });
   },
 
-
   fillInvoiceData: function(suppliers, account) {
-    var smartInvoiceInstance;
+    // var smartInvoiceInstance;
 
-    App.contracts.SmartInvoice.deployed().then(function(instance) {
-      smartInvoiceInstance = instance;
+    // App.contracts.SmartInvoice.deployed().then(function(instance) {
+    //   smartInvoiceInstance = instance;
 
-      return smartInvoiceInstance.getInvoiceSuppliers.call();
-    }).then(function(suppliers) {
-        var invoiceRow = $('#invoiceRow');
-        var invoiceTemplate = $('#invoiceTemplate');
+    //   return smartInvoiceInstance.getInvoiceSuppliers.call();
+    // }).then(function(suppliers) {
+    //     var invoiceRow = $('#invoiceRow');
+    //     var invoiceTemplate = $('#invoiceTemplate');
 
-      for (i = 0; i < suppliers.length; i++) {
-        invoiceTemplate.find('.invoice-supplier').text(suppliers[i]);
-        invoiceRow.append(invoiceTemplate.html());
-      }
-    }).catch(function(err) {
-      console.log(err.message);
-    });
+    //   for (i = 0; i < suppliers.length; i++) {
+    //     invoiceTemplate.find('.invoice-supplier').text(suppliers[i]);
+    //     invoiceRow.append(invoiceTemplate.html());
+    //   }
+    // }).catch(function(err) {
+    //   console.log(err.message);
+    // });
 
   }
 };

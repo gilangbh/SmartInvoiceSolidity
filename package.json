@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "lite-server",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./node_modules/lite-server/lib/lite-server.js"
+    "start": "lite-server"
   },
   "author": "Gilang",
   "license": "ISC",
@@ -17,7 +17,6 @@
     "lite-server": "^2.3.0"
   },
   "dependencies": {
-    "lite-server": "^2.3.0",
-    "bootbox" : "^4.4.0"
+    "lite-server": "^2.3.0"
   }
 }
