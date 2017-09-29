@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "lite-server",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./node_modules/lite=server/bin/lite-server"
+    "start": "node ./node_modules/lite-server/bin/lite-server"
   },
   "author": "Gilang",
   "license": "ISC",
